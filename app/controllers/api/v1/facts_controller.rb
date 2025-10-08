@@ -1,7 +1,7 @@
 module Api
   module V1
     class FactsController < ApplicationController
-      before_action :set_fact, only: [:show, :update, :destroy]
+      before_action :set_fact, only: [ :show, :update, :destroy ]
 
       def index
         @facts = Fact.all
