@@ -1,28 +1,36 @@
 require "test_helper"
 
 class Api::V1::UsersControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    @user = User.create!(username: "testuser", password: "secret123")
+  end
+
   test "should get index" do
-    get api_v1_users_index_url
+    get api_v1_users_url
     assert_response :success
   end
 
-  test "should get show" do
-    get api_v1_users_show_url
+  test "should create user" do
+    assert_difference("User.count") do
+      post api_v1_users_url, params: { user: { username: "newuser", password: "password123" } }, as: :json
+    end
+    assert_response :created
+  end
+
+  test "should show user" do
+    get api_v1_user_url(@user)
     assert_response :success
   end
 
-  test "should get create" do
-    get api_v1_users_create_url
+  test "should update user" do
+    patch api_v1_user_url(@user), params: { user: { username: "updateduser", password: "secret123" } }, as: :json
     assert_response :success
   end
 
-  test "should get update" do
-    get api_v1_users_update_url
-    assert_response :success
-  end
-
-  test "should get destroy" do
-    get api_v1_users_destroy_url
-    assert_response :success
+  test "should destroy user" do
+    assert_difference("User.count", -1) do
+      delete api_v1_user_url(@user)
+    end
+    assert_response :no_content
   end
 end

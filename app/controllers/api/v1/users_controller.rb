@@ -1,20 +1,17 @@
 module Api
   module V1
     class UsersController < ApplicationController
-      before_action :set_user, only: [:show, :update, :destroy]
+      before_action :set_user, only: %i[show update destroy]
 
-      # GET /api/v1/users
       def index
         @users = User.all
         render json: @users
       end
 
-      # GET /api/v1/users/:id
       def show
         render json: @user
       end
 
-      # POST /api/v1/users
       def create
         @user = User.new(user_params)
         if @user.save
@@ -24,7 +21,6 @@ module Api
         end
       end
 
-      # PATCH/PUT /api/v1/users/:id
       def update
         if @user.update(user_params)
           render json: @user
@@ -33,7 +29,6 @@ module Api
         end
       end
 
-      # DELETE /api/v1/users/:id
       def destroy
         @user.destroy
         head :no_content
@@ -45,11 +40,9 @@ module Api
         @user = User.find(params[:id])
       end
 
-      # ✅ Strong parameters
       def user_params
-        params.require(:user).permit(:username, :email, :password)
+        params.require(:user).permit(:username, :password)
       end
     end
   end
 end
-
