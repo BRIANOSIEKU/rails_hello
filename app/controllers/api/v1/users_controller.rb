@@ -1,7 +1,7 @@
 module Api
   module V1
     class UsersController < ApplicationController
-      before_action :set_user, only: [:show, :update, :destroy]
+      before_action :set_user, only: [ :show, :update, :destroy ]
 
       # GET /api/v1/users
       def index
@@ -40,7 +40,7 @@ module Api
       # DELETE /api/v1/users/:id
       def destroy
         if @user.destroy
-          head :no_content   # ✅ Returns HTTP 204, as required by tests
+          head :no_content   # ✅ Returns HTTP 204, matches test expectations
         else
           render json: { error: "Failed to delete user" }, status: :unprocessable_entity
         end
