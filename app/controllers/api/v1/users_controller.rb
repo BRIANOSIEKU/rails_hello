@@ -40,7 +40,7 @@ module Api
       # DELETE /api/v1/users/:id
       def destroy
         if @user.destroy
-          render json: { message: "User deleted successfully" }, status: :ok
+          head :no_content   # ✅ Returns HTTP 204, as required by tests
         else
           render json: { error: "Failed to delete user" }, status: :unprocessable_entity
         end
