@@ -1,7 +1,7 @@
 class Api::V1::FactsController < ApplicationController
   # Before doing create, update, or delete — check if user is authenticated
-  before_action :authenticate_user, only: [:create, :update, :destroy]
-  before_action :set_fact, only: [:show, :update, :destroy]
+  before_action :authenticate_user, only: [ :create, :update, :destroy ]
+  before_action :set_fact, only: [ :show, :update, :destroy ]
 
   # GET /api/v1/facts
   def index
