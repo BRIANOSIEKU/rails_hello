@@ -1,3 +1,13 @@
+# --- Fix for Ruby 2.4+ compatibility with Rails 2.3.x ---
+unless defined?(Fixnum)
+  Fixnum = Integer
+end
+
+unless defined?(Bignum)
+  Bignum = Integer
+end
+# ---------------------------------------------------------
+
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
