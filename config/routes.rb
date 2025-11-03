@@ -4,7 +4,7 @@ Rails.application.routes.draw do
       resources :users
       resources :facts do
         member do
-          post 'like'
+          post "like"
         end
       end
     end
