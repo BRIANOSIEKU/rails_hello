@@ -46,3 +46,17 @@ module Api
     end
   end
 end
+# POST /api/v1/facts/:id/like
+def like
+  @fact = Fact.find(params[:id])
+
+  # Check if user already liked this fact
+  if @fact.liked_user_ids.include?(@current_user.id)
+    render json: { error: "You have already liked this fact" }, status: :forbidden
+  else
+    @fact.liked_user_ids << @current_user.id
+    @fact.likes += 1
+    @fact.save
+    render json: @fact, status: :ok
+  end
+end
