@@ -3,6 +3,6 @@ class Fact < ApplicationRecord
   validates :fact, presence: true
   validates :likes, numericality: { greater_than_or_equal_to: 0 }
 
-  # This allows Rails to store liked_user_ids as an Array
-  serialize :liked_user_ids, Array
+  # Store liked_user_ids as an array
+  attribute :liked_user_ids, :json, default: []
 end
