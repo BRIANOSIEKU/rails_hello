@@ -1,14 +1,14 @@
 module Api
   module V1
     class FactsController < ApplicationController
-      before_action :set_fact, only: [:show, :update, :destroy, :like]
+      before_action :set_fact, only: [ :show, :update, :destroy, :like ]
 
       MAX_PER_PAGE = 50
 
       # GET /api/v1/facts
       def index
         page = params.fetch(:page, 1).to_i
-        per_page = [params.fetch(:per_page, 10).to_i, MAX_PER_PAGE].min
+        per_page = [ params.fetch(:per_page, 10).to_i, MAX_PER_PAGE ].min
 
         facts = Fact.order(created_at: :desc)
                     .offset((page - 1) * per_page)
@@ -55,7 +55,7 @@ module Api
         if @fact.destroy
           head :no_content
         else
-          render json: { errors: { fact: ["could not be deleted"] } }, status: :unprocessable_entity
+          render json: { errors: { fact: [ "could not be deleted" ] } }, status: :unprocessable_entity
         end
       end
 
@@ -63,11 +63,11 @@ module Api
       def like
         user_id = request.headers["X-User-Id"]
         if user_id.blank?
-          return render json: { errors: { user: ["X-User-Id header missing"] } }, status: :unauthorized
+          return render json: { errors: { user: [ "X-User-Id header missing" ] } }, status: :unauthorized
         end
 
         if @fact.liked_user_ids.include?(user_id)
-          return render json: { errors: { like: ["You already liked this fact"] } }, status: :forbidden
+          return render json: { errors: { like: [ "You already liked this fact" ] } }, status: :forbidden
         end
 
         @fact.liked_user_ids << user_id
@@ -83,7 +83,7 @@ module Api
 
       def set_fact
         @fact = Fact.find_by(id: params[:id])
-        return render json: { errors: { fact: ["not found"] } }, status: :not_found unless @fact
+        render json: { errors: { fact: [ "not found" ] } }, status: :not_found unless @fact
       end
 
       def fact_params
