@@ -7,19 +7,15 @@ module Api
 
       # GET /api/v1/facts
       def index
-        # Get pagination params from query string, with defaults
         page = params.fetch(:page, 1).to_i
         per_page = [params.fetch(:per_page, 10).to_i, MAX_PER_PAGE].min
 
-        # Fetch paginated facts
         facts = Fact.order(created_at: :desc)
                     .offset((page - 1) * per_page)
                     .limit(per_page)
 
-        # Total count for metadata
         total_count = Fact.count
 
-        # Render JSON with metadata
         render json: {
           metadata: {
             total_count: total_count,
@@ -41,7 +37,7 @@ module Api
         if @fact.save
           render json: @fact, status: :created
         else
-          render json: @fact.errors, status: :unprocessable_entity
+          render json: { errors: @fact.errors }, status: :unprocessable_entity
         end
       end
 
@@ -50,3 +46,49 @@ module Api
         if @fact.update(fact_params)
           render json: @fact
         else
+          render json: { errors: @fact.errors }, status: :unprocessable_entity
+        end
+      end
+
+      # DELETE /api/v1/facts/:id
+      def destroy
+        if @fact.destroy
+          head :no_content
+        else
+          render json: { errors: { fact: ["could not be deleted"] } }, status: :unprocessable_entity
+        end
+      end
+
+      # POST /api/v1/facts/:id/like
+      def like
+        user_id = request.headers["X-User-Id"]
+        if user_id.blank?
+          return render json: { errors: { user: ["X-User-Id header missing"] } }, status: :unauthorized
+        end
+
+        if @fact.liked_user_ids.include?(user_id)
+          return render json: { errors: { like: ["You already liked this fact"] } }, status: :forbidden
+        end
+
+        @fact.liked_user_ids << user_id
+        @fact.increment(:likes)
+        if @fact.save
+          render json: @fact, status: :ok
+        else
+          render json: { errors: @fact.errors }, status: :unprocessable_entity
+        end
+      end
+
+      private
+
+      def set_fact
+        @fact = Fact.find_by(id: params[:id])
+        return render json: { errors: { fact: ["not found"] } }, status: :not_found unless @fact
+      end
+
+      def fact_params
+        params.require(:fact).permit(:content, :user_id)
+      end
+    end
+  end
+end
