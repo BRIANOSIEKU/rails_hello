@@ -1,18 +1,41 @@
 module Api
   module V1
     class FactsController < ApplicationController
-      before_action :set_fact, only: [ :show, :update, :destroy, :like ]
+      before_action :set_fact, only: [:show, :update, :destroy, :like]
 
-      # your existing actions here...
+      MAX_PER_PAGE = 50
+
+      # GET /api/v1/facts
       def index
-        @facts = Fact.all
-        render json: @facts
+        # Get pagination params from query string, with defaults
+        page = params.fetch(:page, 1).to_i
+        per_page = [params.fetch(:per_page, 10).to_i, MAX_PER_PAGE].min
+
+        # Fetch paginated facts
+        facts = Fact.order(created_at: :desc)
+                    .offset((page - 1) * per_page)
+                    .limit(per_page)
+
+        # Total count for metadata
+        total_count = Fact.count
+
+        # Render JSON with metadata
+        render json: {
+          metadata: {
+            total_count: total_count,
+            page: page,
+            per_page: per_page
+          },
+          facts: facts
+        }
       end
 
+      # GET /api/v1/facts/:id
       def show
         render json: @fact
       end
 
+      # POST /api/v1/facts
       def create
         @fact = Fact.new(fact_params)
         if @fact.save
@@ -22,42 +45,8 @@ module Api
         end
       end
 
+      # PATCH/PUT /api/v1/facts/:id
       def update
         if @fact.update(fact_params)
           render json: @fact
         else
-          render json: @fact.errors, status: :unprocessable_entity
-        end
-      end
-
-      def destroy
-        @fact.destroy
-        head :no_content
-      end
-
-      def like
-        user_id = request.headers["X-User-Id"]
-        if user_id.blank?
-          render json: { error: "Missing X-User-Id header" }, status: :unauthorized
-          return
-        end
-
-        if @fact.like_by(user_id)
-          render json: @fact, status: :ok
-        else
-          render json: { error: "You already liked this fact." }, status: :forbidden
-        end
-      end
-
-      private
-
-      def set_fact
-        @fact = Fact.find(params[:id])
-      end
-
-      def fact_params
-        params.require(:fact).permit(:content, :user_id)
-      end
-    end
-  end
-end
